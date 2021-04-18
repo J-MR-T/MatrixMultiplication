@@ -37,7 +37,7 @@ fun main() {
                         readDoubleMatrix("Input 1. matrix, row by row, spaces between members, end matrix with empty line").asNumberMatrix
                     val right =
                         readDoubleMatrix("Input 2. matrix, row by row, spaces between members, end matrix with empty line").asNumberMatrix
-                    left + (right * (-1.0))
+                    (left + (right * (-1.0)))?.map { row -> row.map { it }.toTypedArray() }?.toTypedArray() ?: error("")
                 }
                 CLIOptions.MATRIX_POWER -> {
                     val matrix: Array<Array<out Number>> = readDoubleMatrix().asNumberMatrix
