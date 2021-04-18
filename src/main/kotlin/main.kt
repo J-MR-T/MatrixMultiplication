@@ -18,8 +18,7 @@ fun main() {
                 val matrices: List<Array<Array<out Number>>> = List(howManyMatrices) {
                     readDoubleMatrix("Input  ${it + 1}. matrix, row by row, spaces between members, end matrix with empty line").asNumberMatrix
                 }
-                println("Result:")
-                matrices.multiplyAll().printMatrix()
+                matrices.multiplyAll()
             }
             "2" -> {
                 val matrix: Array<Array<out Number>> = readDoubleMatrix().asNumberMatrix
@@ -29,17 +28,19 @@ fun main() {
                 val matrices = List(exponent) {
                     matrix
                 }
-                println("Result:")
-                matrices.multiplyAll().printMatrix()
+                matrices.multiplyAll()
             }
             "3" -> {
                 val matrix: Array<Array<out Number>> = readDoubleMatrix().asNumberMatrix
-//                matrix.transpose()
-                matrix.printMatrix()
+                matrix.transpose()
             }
             else -> {
                 println("Try again")
+                null
             }
+        }?.let {
+            println("Result:")
+            it.printMatrix()
         }
     }
 }
@@ -62,11 +63,13 @@ private fun Array<Array<out Number>>.printMatrix() {
     }
 }
 
-//private fun Array<Array<out Number>>.transpose(): Array<Array<out Number>>? {
-//    return Array(this[0].size,Array(this.size){
-//
-//    })
-//}
+private fun Array<Array<out Number>>.transpose(): Array<Array<out Number>> {
+    return Array(this[0].size) { indexRow ->
+        Array(this.size) { indexColumn ->
+            this[indexColumn][indexRow]
+        }
+    }
+}
 
 private fun List<Array<Array<out Number>>>.multiplyAll(): Array<Array<out Number>> {
     //FIXME Not that elegant because reduce has to have the same return type but whatever
