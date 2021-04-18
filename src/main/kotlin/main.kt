@@ -116,41 +116,6 @@ fun readDoubleMatrix(text: String = "Input matrix, row by row, spaces between me
     return matrix
 }
 
-//fun multiply(left: Array<Array<Int>>, right: Array<Array<Int>>): Array<Array<Int>>? {
-//    //Otherwise matrix multiplication isn't possible
-//    return if (left[0].size == right.size) {
-//        val returnMatrix: Array<Array<Int>> = Array(left.size) { Array(right[0].size) { 0 } }
-//        returnMatrix.forEachIndexed { indexRow, arrayOfNumbers ->
-//            arrayOfNumbers.forEachIndexed { indexColumn, _ ->
-//                returnMatrix[indexRow][indexColumn] =
-//                    left[indexRow].mapIndexed { index, number -> number * right[index][indexColumn] }
-//                        .reduce(::add)
-//                        .toInt()
-//            }
-//        }
-//        returnMatrix
-//    } else {
-//        null
-//    }
-//}
-//
-//fun multiply(left: Array<Array<Double>>, right: Array<Array<Double>>): Array<Array<Double>>? {
-//    //Otherwise matrix multiplication isn't possible
-//    return if (left[0].size == right.size) {
-//        val returnMatrix: Array<Array<Double>> = Array(left.size) { Array(right[0].size) { 0.0 } }
-//        returnMatrix.forEachIndexed { indexRow, arrayOfNumbers ->
-//            arrayOfNumbers.forEachIndexed { indexColumn, _ ->
-//                returnMatrix[indexRow][indexColumn] =
-//                    left[indexRow].mapIndexed { index, number -> number * right[index][indexColumn] }.reduce(::add)
-//                        .toDouble()
-//            }
-//        }
-//        returnMatrix
-//    } else {
-//        null
-//    }
-//}
-
 fun multiply(left: Array<Array<out Number>>, right: Array<Array<out Number>>): Array<Array<Number>>? {
     //Otherwise matrix multiplication isn't possible
     return if (left[0].size == right.size) {
