@@ -122,8 +122,10 @@ operator fun Array<Array<out Number>>.plus(other: Array<Array<out Number>>): Arr
 }
 
 private fun Array<Array<out Number>>.printMatrix() {
+    val maxSpaces =
+        flatMap { it.asIterable() }.maxOf { number: Number -> number.toString().length }
     forEach { ints ->
-        ints.forEach { print("$it\t") }
+        ints.forEach { print("$it" + " ".repeat(maxSpaces-it.toString().length+1)) }
         println("")
     }
 }
