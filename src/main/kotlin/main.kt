@@ -1,8 +1,7 @@
 import java.lang.NumberFormatException
 import kotlin.system.exitProcess
 
-@OptIn(ExperimentalStdlibApi::class)
-fun main(args: Array<String>) {
+fun main() {
     while (true) {
         println("Pick your poison (type 'quit','stop' or 'exit' without the '' at any time to stop the application):")
         println("1: Matrix multiplication")
@@ -14,7 +13,7 @@ fun main(args: Array<String>) {
         when (readLine()) {
             "1" -> {
                 println("How many matrices would you like to multiply? (Default: 2)")
-                val howManyMatrices = readLine()?.toIntOrNull() ?: 2;
+                val howManyMatrices = readLine()?.toIntOrNull() ?: 2
 
                 val matrices: List<Array<Array<out Number>>> = List(howManyMatrices) {
                     readDoubleMatrix("Input  ${it + 1}. matrix, row by row, spaces between members, end matrix with empty line").asNumberMatrix
@@ -25,7 +24,7 @@ fun main(args: Array<String>) {
             "2" -> {
                 val matrix: Array<Array<out Number>> = readDoubleMatrix().asNumberMatrix
                 println("Exponent:")
-                val exponent = readLine()?.toIntOrNull() ?: 2;
+                val exponent = readLine()?.toIntOrNull() ?: 2
 
                 val matrices = List(exponent) {
                     matrix
@@ -46,14 +45,14 @@ fun main(args: Array<String>) {
 }
 
 fun readLine(): String? {
-    val line = kotlin.io.readLine();
+    val line = kotlin.io.readLine()
     line?.trim()?.toLowerCase()?.matches(Regex("quit|exit|stop"))?.let {
         if (it) {
             println("Shutting down")
             exitProcess(0)
         }
     }
-    return line;
+    return line
 }
 
 private fun Array<Array<out Number>>.printMatrix() {
@@ -82,7 +81,7 @@ val Array<Array<Double>>.asNumberMatrix: Array<Array<out Number>>
     get() {
         return if (flatMap { doubles: Array<Double> -> doubles.asIterable() }
                 .all { d: Double -> d.toString().endsWith(".0") }) {
-            map { doubles -> doubles.map { d -> d.toInt() }.toTypedArray() }.toTypedArray();
+            map { doubles -> doubles.map { d -> d.toInt() }.toTypedArray() }.toTypedArray()
         } else {
             map { doubles -> doubles.map { d -> d }.toTypedArray() }.toTypedArray()
         }
@@ -91,9 +90,9 @@ val Array<Array<Double>>.asNumberMatrix: Array<Array<out Number>>
 fun Array<Array<Double>>.convertToIntMatrixOrNull(): Array<Array<Int>>? {
     return if (flatMap { doubles: Array<Double> -> doubles.asIterable() }
             .all { d: Double -> d.toString().endsWith(".0") }) {
-        map { doubles -> doubles.map { d -> d.toInt() }.toTypedArray() }.toTypedArray();
+        map { doubles -> doubles.map { d -> d.toInt() }.toTypedArray() }.toTypedArray()
     } else {
-        null;
+        null
     }
 }
 
@@ -105,7 +104,7 @@ fun readDoubleMatrix(text: String = "Input matrix, row by row, spaces between me
         if (lastInput != "") lines.add(lastInput)
     } while (lastInput != "")
     val matrix = try {
-        lines.map { it ->
+        lines.map {
             it.splitToSequence(" ").filter(String::isNotBlank).map { s -> s.toDouble() }.toList().toTypedArray()
         }.toTypedArray()
     } catch (e: NumberFormatException) {
@@ -114,7 +113,7 @@ fun readDoubleMatrix(text: String = "Input matrix, row by row, spaces between me
     if (!matrix.map(Array<Double>::size).all { i -> i == matrix[0].size }) {
         error("Non uniform dimensions")
     }
-    return matrix;
+    return matrix
 }
 
 //fun multiply(left: Array<Array<Int>>, right: Array<Array<Int>>): Array<Array<Int>>? {
@@ -165,37 +164,5 @@ fun multiply(left: Array<Array<out Number>>, right: Array<Array<out Number>>): A
         returnMatrix
     } else {
         null
-    }
-}
-
-operator fun Number.times(other: Number): Number {
-    return if (this is Int && other is Int) {
-        this * other;
-    } else if (this is Float && other is Float) {
-        this * other;
-    } else if (this is Long && other is Long) {
-        this * other;
-    } else if (this is Double && other is Double) {
-        this * other;
-    } else {
-        0;
-    }
-}
-
-fun add(x: Number, y: Number): Number {
-    return x + y;
-}
-
-operator fun Number.plus(other: Number): Number {
-    return if (this is Int && other is Int) {
-        this + other;
-    } else if (this is Float && other is Float) {
-        this + other;
-    } else if (this is Long && other is Long) {
-        this + other;
-    } else if (this is Double && other is Double) {
-        this + other;
-    } else {
-        0;
     }
 }
