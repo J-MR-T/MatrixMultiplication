@@ -7,9 +7,10 @@ fun main() {
         println("1: Matrix multiplication")
         println("2: Matrix pow")
         println("3: Matrix transpose")
-        println("4: Matrix add NOT YET IMPLEMENTED")
-        println("5: Matrix subtract NOT YET IMPLEMENTED")
-        println("Type 1,2,3,4 or 5:")
+        println("4: Matrix-Scalar multiplication NOT YET IMPLEMENTED")
+        println("5: Matrix add NOT YET IMPLEMENTED")
+        println("6: Matrix subtract NOT YET IMPLEMENTED")
+        println("Type 1,2,3,4,5 or 6:")
         when (readLine()) {
             "1" -> {
                 println("How many matrices would you like to multiply? (Default: 2)")
@@ -45,6 +46,10 @@ fun main() {
     }
 }
 
+operator fun Array<Array<out Number>>.times(other: Array<Array<out Number>>): Array<Array<Number>>? {
+    return multiply(this, other);
+}
+
 fun readLine(): String? {
     val line = kotlin.io.readLine()
     line?.trim()?.toLowerCase()?.matches(Regex("quit|exit|stop"))?.let {
@@ -74,7 +79,7 @@ private fun Array<Array<out Number>>.transpose(): Array<Array<out Number>> {
 private fun List<Array<Array<out Number>>>.multiplyAll(): Array<Array<out Number>> {
     //FIXME Not that elegant because reduce has to have the same return type but whatever
     return reduce { left, right ->
-        multiply(left, right)?.map { arrayOfNumbers ->
+        (left * right)?.map { arrayOfNumbers ->
             arrayOfNumbers.map { it }.toTypedArray()
         }?.toTypedArray() ?: error("Matrix multiplication not defined on inputs")
     }
