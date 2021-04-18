@@ -75,7 +75,7 @@ fun main() {
 
 private fun readMatrices(defaultAmount: Int): List<Array<Array<out Number>>> {
     println("How many matrices would you like to multiply? (Default: 2)")
-    val howManyMatrices = readLine()?.toIntOrNull() ?: 2
+    val howManyMatrices = readLine()?.toIntOrNull() ?: defaultAmount
 
     return List(howManyMatrices) {
         readDoubleMatrix("Input  ${it + 1}. matrix, row by row, spaces between members, end matrix with empty line").asNumberMatrix
