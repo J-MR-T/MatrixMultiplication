@@ -3,8 +3,8 @@ enum class CLIOptions(private val optionAsString: String, internal val index: In
     MATRIX_POWER("Matrix power"),
     MATRIX_TRANSPOSE("Matrix transpose"),
     MATRIX_ADD("Matrix add "),
-    MATRIX_SUBTRACT("Matrix subtract NOT YET IMPLEMENTED"),
-    SCALAR_MATRIX_MULTIPLY("Scalar-matrix multiplication NOT YET IMPLEMENTED"),
+    MATRIX_SUBTRACT("Matrix subtract"),
+    SCALAR_MATRIX_MULTIPLY("Scalar-matrix multiplication"),
     ;
 
     override fun toString(): String {

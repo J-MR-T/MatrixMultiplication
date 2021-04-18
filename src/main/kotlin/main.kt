@@ -32,6 +32,13 @@ fun main() {
                     }
                     matrices.addAll()
                 }
+                CLIOptions.MATRIX_SUBTRACT -> {
+                    val left =
+                        readDoubleMatrix("Input 1. matrix, row by row, spaces between members, end matrix with empty line").asNumberMatrix
+                    val right =
+                        readDoubleMatrix("Input 2. matrix, row by row, spaces between members, end matrix with empty line").asNumberMatrix
+                    left + (right * (-1.0))
+                }
                 CLIOptions.MATRIX_POWER -> {
                     val matrix: Array<Array<out Number>> = readDoubleMatrix().asNumberMatrix
                     println("Exponent:")
@@ -47,9 +54,26 @@ fun main() {
                     matrix.transpose()
                 }
                 CLIOptions.SCALAR_MATRIX_MULTIPLY -> {
-                    println("")
-                    val matrix: Array<Array<out Number>> = readDoubleMatrix().asNumberMatrix
-                    matrix
+                    println("How many scalars would you like to multiply? (Default: 1)")
+                    val howManyScalars = readLine()?.toIntOrNull() ?: 1
+
+                    val scalars: List<Double> = List(howManyScalars) {
+                        println("Input Scalar:")
+                        readLine()?.toDoubleOrNull() ?: 1.0
+                    }
+
+                    println("How many matrices would you like to multiply? (Default: 1)")
+                    val howManyMatrices = readLine()?.toIntOrNull() ?: 1
+
+                    val matrices: List<Array<Array<out Number>>> = List(howManyMatrices) {
+                        readDoubleMatrix("Input  ${it + 1}. matrix, row by row, spaces between members, end matrix with empty line").asNumberMatrix
+                    }
+                    val finalScalar = scalars.reduce { x, y -> x * y }
+                    if (finalScalar.toString().endsWith(".0")) {
+                        finalScalar.toInt() * matrices.multiplyAll()
+                    } else {
+                        finalScalar * matrices.multiplyAll()
+                    }
                 }
                 else -> {
                     error("Wrong Option chosen")
@@ -58,11 +82,18 @@ fun main() {
             println("Result:")
             result.printMatrix()
             println(result.asLatex())
-
         } catch (e: Exception) {
             System.err.println("Try again: $e")
         }
     }
+}
+
+private operator fun Number.times(matrix: Array<Array<out Number>>): Array<Array<out Number>> {
+    return matrix.map { row -> row.map { it * this }.toTypedArray() }.toTypedArray()
+}
+
+private operator fun Array<Array<out Number>>.times(number: Number): Array<Array<out Number>> {
+    return number * this
 }
 
 fun readLine(): String? {
@@ -111,7 +142,7 @@ private fun List<Array<Array<out Number>>>.multiplyAll(): Array<Array<out Number
 }
 
 private fun List<Array<Array<out Number>>>.addAll(): Array<Array<out Number>> {
-    return reduce {left, right ->
+    return reduce { left, right ->
         (left + right)
     }
 }

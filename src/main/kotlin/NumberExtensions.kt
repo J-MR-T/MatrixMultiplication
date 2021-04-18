@@ -12,6 +12,10 @@ operator fun Number.times(other: Number): Number {
         this * other
     } else if (this is Double && other is Double) {
         this * other
+    } else if (this is Int && other is Double) {
+        this * other
+    } else if (this is Double && other is Int) {
+        this * other
     } else {
         TODO("Not implemented for this Datatype yet")
     }
@@ -25,6 +29,10 @@ operator fun Number.plus(other: Number): Number {
     } else if (this is Long && other is Long) {
         this + other
     } else if (this is Double && other is Double) {
+        this + other
+    } else if (this is Int && other is Double) {
+        this + other
+    } else if (this is Double && other is Int) {
         this + other
     } else {
         TODO("Not implemented for this Datatype yet")
