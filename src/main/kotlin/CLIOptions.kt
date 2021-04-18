@@ -2,7 +2,7 @@ enum class CLIOptions(private val optionAsString: String, internal val index: In
     MATRIX_MULTIPLY("Matrix multiplication"),
     MATRIX_POWER("Matrix power"),
     MATRIX_TRANSPOSE("Matrix transpose"),
-    MATRIX_ADD("Matrix add "),
+    MATRIX_ADD("Matrix add"),
     MATRIX_SUBTRACT("Matrix subtract"),
     SCALAR_MATRIX_MULTIPLY("Scalar-matrix multiplication"),
     ;
