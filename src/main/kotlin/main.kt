@@ -10,38 +10,41 @@ fun main() {
         val option: CLIOptions? = CLIOptions.values().find { cliOptions ->
             cliOptions.index == input?.toIntOrNull()
         }
-        when (option) {
-            CLIOptions.MATRIX_MULTIPLY -> {
-                println("How many matrices would you like to multiply? (Default: 2)")
-                val howManyMatrices = readLine()?.toIntOrNull() ?: 2
+        try {
+            when (option) {
+                CLIOptions.MATRIX_MULTIPLY -> {
+                    println("How many matrices would you like to multiply? (Default: 2)")
+                    val howManyMatrices = readLine()?.toIntOrNull() ?: 2
 
-                val matrices: List<Array<Array<out Number>>> = List(howManyMatrices) {
-                    readDoubleMatrix("Input  ${it + 1}. matrix, row by row, spaces between members, end matrix with empty line").asNumberMatrix
+                    val matrices: List<Array<Array<out Number>>> = List(howManyMatrices) {
+                        readDoubleMatrix("Input  ${it + 1}. matrix, row by row, spaces between members, end matrix with empty line").asNumberMatrix
+                    }
+                    matrices.multiplyAll()
                 }
-                matrices.multiplyAll()
-            }
-            CLIOptions.MATRIX_POWER -> {
-                val matrix: Array<Array<out Number>> = readDoubleMatrix().asNumberMatrix
-                println("Exponent:")
-                val exponent = readLine()?.toIntOrNull() ?: 2
+                CLIOptions.MATRIX_POWER -> {
+                    val matrix: Array<Array<out Number>> = readDoubleMatrix().asNumberMatrix
+                    println("Exponent:")
+                    val exponent = readLine()?.toIntOrNull() ?: 2
 
-                val matrices = List(exponent) {
-                    matrix
+                    val matrices = List(exponent) {
+                        matrix
+                    }
+                    matrices.multiplyAll()
                 }
-                matrices.multiplyAll()
+                CLIOptions.MATRIX_TRANSPOSE -> {
+                    val matrix: Array<Array<out Number>> = readDoubleMatrix().asNumberMatrix
+                    matrix.transpose()
+                }
+                else -> {
+                    error("Wrong Option chosen")
+                }
+            }.let {
+                println("Result:")
+                it.printMatrix()
+                it.printAsLatex()
             }
-            CLIOptions.MATRIX_TRANSPOSE -> {
-                val matrix: Array<Array<out Number>> = readDoubleMatrix().asNumberMatrix
-                matrix.transpose()
-            }
-            else -> {
-                println("Try again")
-                null
-            }
-        }?.let {
-            println("Result:")
-            it.printMatrix()
-            it.printAsLatex()
+        }catch (e:Exception){
+            System.err.println("Try again: $e")
         }
     }
 }
