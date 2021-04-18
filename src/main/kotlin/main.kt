@@ -13,7 +13,7 @@ fun main() {
             cliOptions.index == input?.toIntOrNull()
         }
         try {
-            when (option) {
+            val result: Array<Array<out Number>> = when (option) {
                 CLIOptions.MATRIX_MULTIPLY -> {
                     println("How many matrices would you like to multiply? (Default: 2)")
                     val howManyMatrices = readLine()?.toIntOrNull() ?: 2
@@ -37,14 +37,19 @@ fun main() {
                     val matrix: Array<Array<out Number>> = readDoubleMatrix().asNumberMatrix
                     matrix.transpose()
                 }
+                CLIOptions.SCALAR_MATRIX_MULTIPLY -> {
+                    println("")
+                    val matrix: Array<Array<out Number>> = readDoubleMatrix().asNumberMatrix
+                    matrix
+                }
                 else -> {
                     error("Wrong Option chosen")
                 }
-            }.let {
-                println("Result:")
-                it.printMatrix()
-                println(it.asLatex())
             }
+            println("Result:")
+            result.printMatrix()
+            println(result.asLatex())
+
         } catch (e: Exception) {
             System.err.println("Try again: $e")
         }
