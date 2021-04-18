@@ -117,6 +117,10 @@ operator fun Array<Array<out Number>>.times(other: Array<Array<out Number>>): Ar
     return multiply(this, other)
 }
 
+operator fun Array<Array<out Number>>.plus(other: Array<Array<out Number>>): Array<Array<Number>>? {
+    return add(this, other)
+}
+
 private fun Array<Array<out Number>>.printMatrix() {
     forEach { ints ->
         ints.forEach { print("$it\t") }
@@ -143,7 +147,9 @@ private fun List<Array<Array<out Number>>>.multiplyAll(): Array<Array<out Number
 
 private fun List<Array<Array<out Number>>>.addAll(): Array<Array<out Number>> {
     return reduce { left, right ->
-        (left + right)
+        (left + right)?.map { arrayOfNumbers ->
+            arrayOfNumbers.map { it }.toTypedArray()
+        }?.toTypedArray() ?: error("Matrix add not defined on inputs")
     }
 }
 
@@ -194,6 +200,22 @@ fun multiply(left: Array<Array<out Number>>, right: Array<Array<out Number>>): A
             arrayOfNumbers.forEachIndexed { indexColumn, _ ->
                 returnMatrix[indexRow][indexColumn] =
                     left[indexRow].mapIndexed { index, number -> number * right[index][indexColumn] }.reduce(::add)
+            }
+        }
+        returnMatrix
+    } else {
+        null
+    }
+}
+
+fun add(left: Array<Array<out Number>>, right: Array<Array<out Number>>): Array<Array<Number>>? {
+    //Otherwise matrix multiplication isn't possible
+    return if (left.size == right.size && left[0].size == right[0].size) {
+        val returnMatrix: Array<Array<Number>> = Array(left.size) { Array(left[0].size) { 0 } }
+        returnMatrix.forEachIndexed { indexRow, arrayOfNumbers ->
+            arrayOfNumbers.forEachIndexed { indexColumn, _ ->
+                returnMatrix[indexRow][indexColumn] =
+                    left[indexRow][indexColumn] + right[indexRow][indexColumn]
             }
         }
         returnMatrix
