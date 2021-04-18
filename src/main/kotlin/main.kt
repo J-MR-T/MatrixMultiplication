@@ -111,11 +111,8 @@ private fun List<Array<Array<out Number>>>.multiplyAll(): Array<Array<out Number
 }
 
 private fun List<Array<Array<out Number>>>.addAll(): Array<Array<out Number>> {
-    //FIXME Not that elegant because reduce has to have the same return type but whatever
-    return reduce { left, right ->
-        (left + right).map { arrayOfNumbers ->
-            arrayOfNumbers.map { it }.toTypedArray()
-        }.toTypedArray()
+    return reduce {left, right ->
+        (left + right)
     }
 }
 
