@@ -1,6 +1,8 @@
 import java.lang.NumberFormatException
 import kotlin.system.exitProcess
 
+private val exitCommands: List<String> = listOf("quit", "stop", "exit", "vim")
+
 fun main() {
     while (true) {
         println("Pick your poison (type 'quit','stop' or 'exit' without the '' at any time to stop the application):")
@@ -41,15 +43,24 @@ fun main() {
             }.let {
                 println("Result:")
                 it.printMatrix()
-                it.printAsLatex()
+                println(it.asLatex())
             }
-        }catch (e:Exception){
+        } catch (e: Exception) {
             System.err.println("Try again: $e")
         }
     }
 }
 
-private fun Array<Array<out Number>>.printAsLatex(whichKind: String = "pmatrix"): String {
+fun readLine(): String? {
+    val line = kotlin.io.readLine()
+    line?.trim()?.toLowerCase()?.findAnyOf(exitCommands)?.let {
+        println("Shutting down")
+        exitProcess(0)
+    }
+    return line
+}
+
+private fun Array<Array<out Number>>.asLatex(whichKind: String = "pmatrix"): String {
     return this.joinToString(
         separator = "\\\\",
         prefix = "\\begin{$whichKind}",
@@ -59,17 +70,6 @@ private fun Array<Array<out Number>>.printAsLatex(whichKind: String = "pmatrix")
 
 operator fun Array<Array<out Number>>.times(other: Array<Array<out Number>>): Array<Array<Number>>? {
     return multiply(this, other);
-}
-
-fun readLine(): String? {
-    val line = kotlin.io.readLine()
-    line?.trim()?.toLowerCase()?.matches(Regex("quit|exit|stop"))?.let {
-        if (it) {
-            println("Shutting down")
-            exitProcess(0)
-        }
-    }
-    return line
 }
 
 private fun Array<Array<out Number>>.printMatrix() {
