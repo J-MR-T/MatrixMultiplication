@@ -4,15 +4,12 @@ import kotlin.system.exitProcess
 fun main() {
     while (true) {
         println("Pick your poison (type 'quit','stop' or 'exit' without the '' at any time to stop the application):")
-        println("1: Matrix multiplication")
-        println("2: Matrix pow")
-        println("3: Matrix transpose")
-        println("4: Matrix-Scalar multiplication NOT YET IMPLEMENTED")
-        println("5: Matrix add NOT YET IMPLEMENTED")
-        println("6: Matrix subtract NOT YET IMPLEMENTED")
-        println("Type 1,2,3,4,5 or 6:")
-        when (readLine()) {
-            "1" -> {
+        CLIOptions.values().forEach(::println)
+        println("Select one by typing its corresponding number")
+        val option: CLIOptions? =
+            CLIOptions.values().find { cliOptions -> cliOptions.index == readLine()?.toIntOrNull() }
+        when (option) {
+            CLIOptions.MATRIX_MULTIPLY -> {
                 println("How many matrices would you like to multiply? (Default: 2)")
                 val howManyMatrices = readLine()?.toIntOrNull() ?: 2
 
@@ -21,7 +18,7 @@ fun main() {
                 }
                 matrices.multiplyAll()
             }
-            "2" -> {
+            CLIOptions.MATRIX_POWER -> {
                 val matrix: Array<Array<out Number>> = readDoubleMatrix().asNumberMatrix
                 println("Exponent:")
                 val exponent = readLine()?.toIntOrNull() ?: 2
@@ -31,7 +28,7 @@ fun main() {
                 }
                 matrices.multiplyAll()
             }
-            "3" -> {
+            CLIOptions.MATRIX_TRANSPOSE -> {
                 val matrix: Array<Array<out Number>> = readDoubleMatrix().asNumberMatrix
                 matrix.transpose()
             }
