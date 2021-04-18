@@ -8,7 +8,7 @@ fun main() {
         println("Pick your poison (type 'quit','stop' or 'exit' without the '' at any time to stop the application):")
         CLIOptions.values().forEach(::println)
         println("Select one by typing its corresponding number")
-        val input = readLine();
+        val input = readLine()
         val option: CLIOptions? = CLIOptions.values().find { cliOptions ->
             cliOptions.index == input?.toIntOrNull()
         }
@@ -22,6 +22,15 @@ fun main() {
                         readDoubleMatrix("Input  ${it + 1}. matrix, row by row, spaces between members, end matrix with empty line").asNumberMatrix
                     }
                     matrices.multiplyAll()
+                }
+                CLIOptions.MATRIX_ADD -> {
+                    println("How many matrices would you like to add? (Default: 2)")
+                    val howManyMatrices = readLine()?.toIntOrNull() ?: 2
+
+                    val matrices: List<Array<Array<out Number>>> = List(howManyMatrices) {
+                        readDoubleMatrix("Input  ${it + 1}. matrix, row by row, spaces between members, end matrix with empty line").asNumberMatrix
+                    }
+                    matrices.addAll()
                 }
                 CLIOptions.MATRIX_POWER -> {
                     val matrix: Array<Array<out Number>> = readDoubleMatrix().asNumberMatrix
@@ -70,11 +79,11 @@ private fun Array<Array<out Number>>.asLatex(whichKind: String = "pmatrix"): Str
         separator = "\\\\",
         prefix = "\\begin{$whichKind}",
         postfix = "\\end{$whichKind}",
-    ) { arrayOfNumbers -> arrayOfNumbers.joinToString("&") };
+    ) { arrayOfNumbers -> arrayOfNumbers.joinToString("&") }
 }
 
 operator fun Array<Array<out Number>>.times(other: Array<Array<out Number>>): Array<Array<Number>>? {
-    return multiply(this, other);
+    return multiply(this, other)
 }
 
 private fun Array<Array<out Number>>.printMatrix() {
@@ -98,6 +107,15 @@ private fun List<Array<Array<out Number>>>.multiplyAll(): Array<Array<out Number
         (left * right)?.map { arrayOfNumbers ->
             arrayOfNumbers.map { it }.toTypedArray()
         }?.toTypedArray() ?: error("Matrix multiplication not defined on inputs")
+    }
+}
+
+private fun List<Array<Array<out Number>>>.addAll(): Array<Array<out Number>> {
+    //FIXME Not that elegant because reduce has to have the same return type but whatever
+    return reduce { left, right ->
+        (left + right).map { arrayOfNumbers ->
+            arrayOfNumbers.map { it }.toTypedArray()
+        }.toTypedArray()
     }
 }
 
