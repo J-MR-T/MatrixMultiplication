@@ -6,7 +6,7 @@ fun main() {
         println("Pick your poison (type 'quit','stop' or 'exit' without the '' at any time to stop the application):")
         println("1: Matrix multiplication")
         println("2: Matrix pow")
-        println("3: Matrix transpose NOT YET IMPLEMENTED")
+        println("3: Matrix transpose")
         println("4: Matrix add NOT YET IMPLEMENTED")
         println("5: Matrix subtract NOT YET IMPLEMENTED")
         println("Type 1,2,3,4 or 5:")
