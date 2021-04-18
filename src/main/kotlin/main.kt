@@ -15,21 +15,11 @@ fun main() {
         try {
             val result: Array<Array<out Number>> = when (option) {
                 CLIOptions.MATRIX_MULTIPLY -> {
-                    println("How many matrices would you like to multiply? (Default: 2)")
-                    val howManyMatrices = readLine()?.toIntOrNull() ?: 2
-
-                    val matrices: List<Array<Array<out Number>>> = List(howManyMatrices) {
-                        readDoubleMatrix("Input  ${it + 1}. matrix, row by row, spaces between members, end matrix with empty line").asNumberMatrix
-                    }
+                    val matrices = readMatrices(2)
                     matrices.multiplyAll()
                 }
                 CLIOptions.MATRIX_ADD -> {
-                    println("How many matrices would you like to add? (Default: 2)")
-                    val howManyMatrices = readLine()?.toIntOrNull() ?: 2
-
-                    val matrices: List<Array<Array<out Number>>> = List(howManyMatrices) {
-                        readDoubleMatrix("Input  ${it + 1}. matrix, row by row, spaces between members, end matrix with empty line").asNumberMatrix
-                    }
+                    val matrices = readMatrices(2)
                     matrices.addAll()
                 }
                 CLIOptions.MATRIX_SUBTRACT -> {
@@ -62,12 +52,7 @@ fun main() {
                         readLine()?.toDoubleOrNull() ?: 1.0
                     }
 
-                    println("How many matrices would you like to multiply? (Default: 1)")
-                    val howManyMatrices = readLine()?.toIntOrNull() ?: 1
-
-                    val matrices: List<Array<Array<out Number>>> = List(howManyMatrices) {
-                        readDoubleMatrix("Input  ${it + 1}. matrix, row by row, spaces between members, end matrix with empty line").asNumberMatrix
-                    }
+                    val matrices = readMatrices(1)
                     val finalScalar = scalars.reduce { x, y -> x * y }
                     if (finalScalar.toString().endsWith(".0")) {
                         finalScalar.toInt() * matrices.multiplyAll()
@@ -85,6 +70,15 @@ fun main() {
         } catch (e: Exception) {
             System.err.println("Try again: $e")
         }
+    }
+}
+
+private fun readMatrices(defaultAmount: Int): List<Array<Array<out Number>>> {
+    println("How many matrices would you like to multiply? (Default: 2)")
+    val howManyMatrices = readLine()?.toIntOrNull() ?: 2
+
+    return List(howManyMatrices) {
+        readDoubleMatrix("Input  ${it + 1}. matrix, row by row, spaces between members, end matrix with empty line").asNumberMatrix
     }
 }
 
