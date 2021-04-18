@@ -2,7 +2,7 @@ fun add(x: Number, y: Number): Number {
     return x + y
 }
 
-//I know that this looks ridiculous, but all of these operators call different functions like Int.plus(Int) or Long.plus(Long)
+//I know that this looks ridiculous, but all of these operators call different functions like Int.plus(Int) or Long.plus(Long) because of smart casting
 operator fun Number.times(other: Number): Number {
     return if (this is Int && other is Int) {
         this * other
@@ -13,7 +13,7 @@ operator fun Number.times(other: Number): Number {
     } else if (this is Double && other is Double) {
         this * other
     } else {
-        0
+        TODO("Not implemented for this Datatype yet")
     }
 }
 
@@ -27,7 +27,7 @@ operator fun Number.plus(other: Number): Number {
     } else if (this is Double && other is Double) {
         this + other
     } else {
-        0
+        TODO("Not implemented for this Datatype yet")
     }
 }
 
@@ -41,7 +41,7 @@ operator fun Number.div(other: Number): Number {
     } else if (this is Double && other is Double) {
         this / other
     } else {
-        0
+        TODO("Not implemented for this Datatype yet")
     }
 }
 
@@ -55,6 +55,6 @@ operator fun Number.minus(other: Number): Number {
     } else if (this is Double && other is Double) {
         this - other
     } else {
-        0
+        TODO("Not implemented for this Datatype yet")
     }
 }
