@@ -2,9 +2,9 @@ enum class CLIOptions(private val optionAsString: String, internal val index: In
     MATRIX_MULTIPLY("Matrix multiplication"),
     MATRIX_POWER("Matrix power"),
     MATRIX_TRANSPOSE("Matrix transpose"),
-    MATRIX_ADD("Matrix-Scalar multiplication"),
-    MATRIX_SUBTRACT("Matrix add NOT YET IMPLEMENTED"),
-    SCALAR_MATRIX_MULTIPLY("Matrix subtract NOT YET IMPLEMENTED"),
+    MATRIX_ADD("Matrix add "),
+    MATRIX_SUBTRACT("Matrix subtract NOT YET IMPLEMENTED"),
+    SCALAR_MATRIX_MULTIPLY("Scalar-matrix multiplication NOT YET IMPLEMENTED"),
     ;
 
     override fun toString(): String {
