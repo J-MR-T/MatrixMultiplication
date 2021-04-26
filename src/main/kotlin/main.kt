@@ -82,11 +82,11 @@ private fun readMatrices(defaultAmount: Int): List<Array<Array<out Number>>> {
     }
 }
 
-private operator fun Number.times(matrix: Array<Array<out Number>>): Array<Array<out Number>> {
+operator fun Number.times(matrix: Array<Array<out Number>>): Array<Array<out Number>> {
     return matrix.map { row -> row.map { it * this }.toTypedArray() }.toTypedArray()
 }
 
-private operator fun Array<Array<out Number>>.times(number: Number): Array<Array<out Number>> {
+operator fun Array<Array<out Number>>.times(number: Number): Array<Array<out Number>> {
     return number * this
 }
 
@@ -115,7 +115,7 @@ operator fun Array<Array<out Number>>.plus(other: Array<Array<out Number>>): Arr
     return add(this, other)
 }
 
-private fun Array<Array<out Number>>.printMatrix() {
+fun Array<Array<out Number>>.printMatrix() {
     val maxSpaces =
         flatMap { it.asIterable() }.maxOf { number: Number -> number.toString().length }
     forEach { ints ->
@@ -124,7 +124,7 @@ private fun Array<Array<out Number>>.printMatrix() {
     }
 }
 
-private fun Array<Array<out Number>>.transpose(): Array<Array<out Number>> {
+internal fun Array<Array<out Number>>.transpose(): Array<Array<out Number>> {
     return Array(this[0].size) { indexRow ->
         Array(this.size) { indexColumn ->
             this[indexColumn][indexRow]

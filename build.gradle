@@ -8,15 +8,22 @@ version = '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
+    maven { url 'https://jitpack.io' }
 }
 
 compileKotlin {
-    kotlinOptions.useIR=true
+    kotlinOptions.useIR = true
     kotlinOptions.jvmTarget = '1.8'
 }
 
 compileTestKotlin {
     kotlinOptions.jvmTarget = '1.8'
+}
+
+dependencies {
+    implementation "guru.zoroark.lixy:lixy-jvm:5313645728";
+    implementation "guru.zoroark.pangoro:pangoro-jvm:9cb01e7238"
+    implementation "com.github.h0tk3y.betterParse:better-parse:0.4.2"
 }
 
 application {
