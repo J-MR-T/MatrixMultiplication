@@ -50,7 +50,7 @@ class ExpressionGrammar : Grammar<Any>() {
     }) or (scalarToken use { scalars[text] ?: throw ParseException(object : ErrorResult() {}) })
 
 
-    val matrixTerm: Parser<Matrix> by matrix or
+    val matrixTerm: Parser<Any> by matrix or
             (skip(lpar) and parser(::rootParser) and skip(rpar))
 
     val term: Parser<Any> by matrixTerm or scalar or
@@ -81,7 +81,7 @@ class ExpressionGrammar : Grammar<Any>() {
         }
     }
 
-    val sumChain: Parser<Matrix> by leftAssociative(mulChain, plus) { a, op, b ->
+    val sumChain by leftAssociative(mulChain, plus) { a, op, b ->
         if (a as? Matrix != null && b as? Matrix != null) {
             return@leftAssociative ((a + b) as? Matrix) ?: throw ParseException(object : ErrorResult() {})
         } else if (a is Scalar && b is Scalar) {
@@ -89,8 +89,8 @@ class ExpressionGrammar : Grammar<Any>() {
         } else {
             throw ParseException(object : ErrorResult() {})
         }
-    } as Parser<Matrix>
-    override val rootParser: Parser<Matrix> by sumChain
+    }
+    override val rootParser: Parser<Any> by sumChain
 }
 
 
