@@ -21,6 +21,7 @@ val matrices: MutableMap<String, Matrix> =
 val scalars: MutableMap<String, Scalar> = mutableMapOf("ten" to 10)
 
 class ExpressionGrammar : Grammar<Any>() {
+    //TODO insert identity matrix of any size by doing (I^x) where x is any natural number
     val plus by literalToken("+")
     val minus by literalToken("-")
     val times by literalToken("*")
@@ -35,10 +36,13 @@ class ExpressionGrammar : Grammar<Any>() {
 
     val matrix by ((matrixToken and equals and read) use
             {
-                println(this)
-                val input = readDoubleMatrix().asNumberMatrix
-                matrices[this.t1.text] = input
-                input
+                //FIXME this still sometimes gets called twice, because the term gets parsed multiple times which shouldn't happen
+                // the workaround is currently to just use the value if its there
+                matrices[this.t1.text]?:run{
+                    val input = readDoubleMatrix().asNumberMatrix
+                    matrices[this.t1.text] = input
+                    input
+                }
             }) or (matrixToken use { matrices[text] ?: throw ParseException(object : ErrorResult() {}) })
 
     val scalar by ((scalarToken and equals and read) use {
@@ -67,7 +71,8 @@ class ExpressionGrammar : Grammar<Any>() {
 //            ErrorResult() {})
 //    }
 
-    val mulChain by leftAssociative(term or transposeChain, times use { type }) { a, op, b ->
+    //FIXME or is not commutative and breaks it either way
+    val mulChain by leftAssociative(transposeChain or term, times use { type }) { a, op, b ->
         return@leftAssociative if (a is Scalar && b is Scalar) {
             a * b
         } else if (a is Scalar && b !is Scalar) {
@@ -98,11 +103,17 @@ fun main(args: Array<String>) {
     val grammar = ExpressionGrammar()
     while (true) {
         println("Input Expression:")
-        val result = grammar.parseToEnd(readLine() ?: "")
-        if (result is Scalar) {
-            println(result)
-        } else {
-            (result as Matrix).printMatrix()
+        try {
+            val result = grammar.parseToEnd(readLine() ?: "")
+            if (result is Scalar) {
+                println(result)
+            } else {
+                val matrix = (result as Matrix).toIntsIfApplicable
+                matrix.printMatrix()
+                println("Latex: ${matrix.asLatex()}")
+            }
+        }catch (e:Exception){
+            System.err.println("There was a problem parsing or evaluating your input: $e")
         }
     }
 }

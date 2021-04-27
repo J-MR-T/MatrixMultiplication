@@ -99,7 +99,7 @@ fun readLine(): String? {
     return line
 }
 
-private fun Array<Array<out Number>>.asLatex(whichKind: String = "pmatrix"): String {
+fun Array<Array<out Number>>.asLatex(whichKind: String = "pmatrix"): String {
     return this.joinToString(
         separator = "\\\\",
         prefix = "\\begin{$whichKind}",
@@ -119,7 +119,7 @@ fun Array<Array<out Number>>.printMatrix() {
     val maxSpaces =
         flatMap { it.asIterable() }.maxOf { number: Number -> number.toString().length }
     forEach { ints ->
-        ints.forEach { print("$it" + " ".repeat(maxSpaces-it.toString().length+1)) }
+        ints.forEach { print("$it" + " ".repeat(maxSpaces - it.toString().length + 1)) }
         println("")
     }
 }
@@ -159,6 +159,20 @@ val Array<Array<Double>>.asNumberMatrix: Array<Array<out Number>>
         }
     }
 
+val Array<Array<out Number>>.toIntsIfApplicable: Array<Array<out Number>>
+    get() {
+        return if (flatMap { numbers -> numbers.asIterable() }.all { number -> number is Int }) {
+            this
+        } else {
+            if (flatMap { numbers -> numbers.asIterable() }
+                    .all { d: Number -> d.toString().endsWith(".0") }) {
+                map { numbers -> numbers.map { d -> d.toInt() }.toTypedArray() }.toTypedArray()
+            } else {
+                map { numbers -> numbers.map { d -> d }.toTypedArray() }.toTypedArray()
+            }
+        }
+    }
+
 fun Array<Array<Double>>.convertToIntMatrixOrNull(): Array<Array<Int>>? {
     return if (flatMap { doubles: Array<Double> -> doubles.asIterable() }
             .all { d: Double -> d.toString().endsWith(".0") }) {
@@ -195,7 +209,8 @@ fun multiply(left: Array<Array<out Number>>, right: Array<Array<out Number>>): A
         returnMatrix.forEachIndexed { indexRow, arrayOfNumbers ->
             arrayOfNumbers.forEachIndexed { indexColumn, _ ->
                 returnMatrix[indexRow][indexColumn] =
-                    left[indexRow].mapIndexed { index, number -> number * right[index][indexColumn] }.reduce(::add)
+                    left[indexRow].mapIndexed { index, number -> number * right[index][indexColumn] }
+                        .reduce(::add)
             }
         }
         returnMatrix
