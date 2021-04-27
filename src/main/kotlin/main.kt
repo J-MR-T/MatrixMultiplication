@@ -41,7 +41,7 @@ fun main() {
                 }
                 CLIOptions.MATRIX_TRANSPOSE -> {
                     val matrix: Array<Array<out Number>> = readDoubleMatrix().asNumberMatrix
-                    matrix.transpose()
+                    matrix.transposed()
                 }
                 CLIOptions.SCALAR_MATRIX_MULTIPLY -> {
                     println("How many scalars would you like to multiply? (Default: 1)")
@@ -124,7 +124,7 @@ fun Array<Array<out Number>>.printMatrix() {
     }
 }
 
-internal fun Array<Array<out Number>>.transpose(): Array<Array<out Number>> {
+internal fun Array<Array<out Number>>.transposed(): Array<Array<out Number>> {
     return Array(this[0].size) { indexRow ->
         Array(this.size) { indexColumn ->
             this[indexColumn][indexRow]
