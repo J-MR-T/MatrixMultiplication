@@ -84,11 +84,23 @@ class ExpressionGrammar : Grammar<Any>() {
         }
     }
 
-    val sumChain by leftAssociative(mulChain, plus) { a, op, b ->
-        return@leftAssociative if (a is Matrix && b is Matrix) {
-            (a + b) ?: UnexpectedEof(matrixToken)
-        } else if (a is Scalar && b is Scalar) {
-            Array(1) { Array(1) { a + b } }
+    val sumChain by leftAssociative(mulChain, plus or minus) { a, op, b ->
+        return@leftAssociative if (op.type == plus) {
+            if (a is Matrix && b is Matrix) {
+                (a + b) ?: UnexpectedEof(matrixToken)
+            } else if (a is Scalar && b is Scalar) {
+                Array(1) { Array(1) { a + b } }
+            } else {
+                UnexpectedEof(matrixToken)
+            }
+        } else if (op.type == minus) {
+            if (a is Matrix && b is Matrix) {
+                (a - b) ?: UnexpectedEof(matrixToken)
+            } else if (a is Scalar && b is Scalar) {
+                Array(1) { Array(1) { a - b } }
+            } else {
+                UnexpectedEof(matrixToken)
+            }
         } else {
             UnexpectedEof(matrixToken)
         }

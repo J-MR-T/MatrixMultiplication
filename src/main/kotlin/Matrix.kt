@@ -144,7 +144,11 @@ class Matrix(private var matrix: Array<Array<out Number>>) {
     }
 
     operator fun plus(other: Matrix): Matrix? {
-        return (this.matrix * other.matrix)?.let { Matrix(it.addOut) }
+        return (this.matrix + other.matrix)?.let { Matrix(it.addOut) }
+    }
+
+    operator fun minus(other: Matrix): Matrix? {
+        return this + (-other)
     }
 
     private operator fun Array<Array<out Number>>.plus(other: Array<Array<out Number>>): Array<Array<Number>>? {
@@ -201,6 +205,14 @@ class Matrix(private var matrix: Array<Array<out Number>>) {
         } else {
             null
         }
+    }
+
+    operator fun unaryMinus(): Matrix {
+        return this * -1
+    }
+
+    operator fun get(row: Int, column: Int): Number {
+        return matrix[row][column]
     }
 
 }
