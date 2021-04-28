@@ -21,8 +21,6 @@ compileTestKotlin {
 }
 
 dependencies {
-    implementation "guru.zoroark.lixy:lixy-jvm:5313645728";
-    implementation "guru.zoroark.pangoro:pangoro-jvm:9cb01e7238"
     implementation "com.github.h0tk3y.betterParse:better-parse:0.4.2"
 }
 
