@@ -1,22 +1,21 @@
 import com.github.h0tk3y.betterParse.combinators.*
 import com.github.h0tk3y.betterParse.grammar.Grammar
-import com.github.h0tk3y.betterParse.grammar.parseToEnd
 import com.github.h0tk3y.betterParse.grammar.parser
-import com.github.h0tk3y.betterParse.lexer.TokenMatch
 import com.github.h0tk3y.betterParse.lexer.TokenMatchesSequence
 import com.github.h0tk3y.betterParse.lexer.literalToken
 import com.github.h0tk3y.betterParse.lexer.regexToken
 import com.github.h0tk3y.betterParse.parser.*
 
-typealias Matrix = Array<Array<out Number>>
 typealias Scalar = Number
 
 val matrices: MutableMap<String, Matrix> =
-    mutableMapOf("A" to Array(2) { Array(2) { 1 } }, "B" to Array(2) { Array(2) { 1 } })
+    mutableMapOf(
+        "A" to Matrix(Array(2) { Array(2) { 1 } }),
+        "B" to Matrix(Array(2) { Array(2) { 1 } })
+    )
 val scalars: MutableMap<String, Scalar> = mutableMapOf("ten" to 10)
 
 class ExpressionGrammar : Grammar<Any>() {
-    //TODO insert identity matrix of any size by doing (I^x) where x is any natural number
     val plus by literalToken("+")
     val minus by literalToken("-")
     val times by literalToken("*")
@@ -33,17 +32,13 @@ class ExpressionGrammar : Grammar<Any>() {
 
     val matrix by (identity use {
         val dimension = this.text.replace(" ", "").substring(2).toInt()
-        Array(dimension) { indexRow ->
-            Array(dimension) { indexColum ->
-                if (indexRow == indexColum) 1 else 0
-            }
-        }
+        Matrix.getIdentityMatrix(dimension)
     }) or ((matrixToken and skip(equals) and skip(read)) use
             {
                 //FIXME this still sometimes gets called twice, because the term gets parsed multiple times which shouldn't happen
                 // the workaround is currently to just use the value if its there
                 matrices[this.text] ?: run {
-                    val input = readDoubleMatrix().asNumberMatrix
+                    val input = Matrix.readMatrix()
                     matrices[this.text] = input
                     input
                 }
@@ -68,36 +63,30 @@ class ExpressionGrammar : Grammar<Any>() {
             (skip(lpar) and parser(::rootParser) and skip(rpar))
 
 
-    val transposeChain by ((matrixTerm and zeroOrMore(transpose))) use {
-        if (this.t1 as? Matrix != null) {
-            var transposed: Matrix = this.t1 as Matrix;
-            repeat(this.t2.size) { transposed = transposed.transposed() }
-            transposed
-        } else {
-            UnexpectedEof(expected = matrixToken)
-        }
+    val transposeChain by ((matrixTerm and zeroOrMore(transpose))) map {
+        var transposed: Matrix = it.t1
+        repeat(it.t2.size) { transposed = transposed.transposed() }
+        transposed
     }
 
     //FIXME or is not commutative and breaks it either way
     val mulChain: Parser<Any> by leftAssociative((transposeChain or term), times use { type }) { a, op, b ->
         return@leftAssociative if (a is Scalar && b is Scalar) {
             a * b
-        } else if (a is Scalar && b !is Scalar) {
-            a * ((b as? Matrix) ?: return@leftAssociative UnexpectedEof(matrixToken))
-        } else if (a !is Scalar && b is Scalar) {
-            ((a as? Matrix) ?: return@leftAssociative UnexpectedEof(matrixToken)) * b
+        } else if (a is Scalar && b is Matrix) {
+            b * a
+        } else if (a is Matrix && b is Scalar) {
+            a * b
+        } else if (a is Matrix && b is Matrix) {
+            (a * b) ?: throw Exception("Matrices have the wrong dimensions: a: $a; b:$b")
         } else {
-            if ((a as? Matrix) != null && (b as? Matrix) != null) {
-                (a * b) ?: throw Exception("Matrices have the wrong dimensions: a: $a; b:$b")
-            } else {
-                UnexpectedEof(matrixToken)
-            }
+            UnexpectedEof(matrixToken)
         }
     }
 
     val sumChain by leftAssociative(mulChain, plus) { a, op, b ->
-        return@leftAssociative if (a as? Matrix != null && b as? Matrix != null) {
-            ((a + b) as? Matrix) ?:  UnexpectedEof(matrixToken)
+        return@leftAssociative if (a is Matrix && b is Matrix) {
+            (a + b) ?: UnexpectedEof(matrixToken)
         } else if (a is Scalar && b is Scalar) {
             Array(1) { Array(1) { a + b } }
         } else {
@@ -116,13 +105,17 @@ fun main(args: Array<String>) {
         try {
             val input = readLine() ?: ""
             tokensForDebugging = grammar.tokenizer.tokenize(input)
-            val result = grammar.parseToEnd(tokensForDebugging)
-            if (result is Scalar) {
-                println(result)
-            } else {
-                val matrix = (result as Matrix).toIntsIfApplicable
-                matrix.printMatrix()
-                println("Latex: ${matrix.asLatex()}")
+            when (val result = grammar.parseToEnd(tokensForDebugging)) {
+                is Scalar -> {
+                    println(result)
+                }
+                is Matrix -> {
+                    result.printMatrix()
+                    println("Latex: ${result.asLatex()}")
+                }
+                else -> {
+                    System.err.println("Error, result was neither Scalar nor Matrix")
+                }
             }
         } catch (e: Exception) {
             System.err.println("There was a problem parsing or evaluating your input: $e")
