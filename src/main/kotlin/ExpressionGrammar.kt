@@ -2,6 +2,7 @@ import com.github.h0tk3y.betterParse.combinators.*
 import com.github.h0tk3y.betterParse.grammar.Grammar
 import com.github.h0tk3y.betterParse.grammar.parseToEnd
 import com.github.h0tk3y.betterParse.grammar.parser
+import com.github.h0tk3y.betterParse.lexer.TokenMatch
 import com.github.h0tk3y.betterParse.lexer.TokenMatchesSequence
 import com.github.h0tk3y.betterParse.lexer.literalToken
 import com.github.h0tk3y.betterParse.lexer.regexToken
@@ -23,30 +24,30 @@ class ExpressionGrammar : Grammar<Any>() {
     val read by literalToken("read()")
     val lpar by literalToken("(")
     val rpar by literalToken(")")
-    val identity by regexToken("I\\^(\\d)+")
+    val identity by regexToken("Id(\\s)*((\\s)*(\\d)+)+")
+    val number by regexToken("\\d+")
     val transpose by regexToken("\\^[Tt]")
     val matrixToken by regexToken("[A-Z]+[A-Za-z]*")
     val scalarToken by regexToken("[a-z]+[A-Za-z]*")
     val whitespace by regexToken("(\\s|${System.lineSeparator()}|\t)+", ignore = true)
 
     val matrix by (identity use {
-        val dimension = this.text.substring(2).toInt()
+        val dimension = this.text.replace(" ", "").substring(2).toInt()
         Array(dimension) { indexRow ->
             Array(dimension) { indexColum ->
                 if (indexRow == indexColum) 1 else 0
             }
         }
-    }) or
-            ((matrixToken and skip(equals) and skip(read)) use
-                    {
-                        //FIXME this still sometimes gets called twice, because the term gets parsed multiple times which shouldn't happen
-                        // the workaround is currently to just use the value if its there
-                        matrices[this.text] ?: run {
-                            val input = readDoubleMatrix().asNumberMatrix
-                            matrices[this.text] = input
-                            input
-                        }
-                    }) or (matrixToken use { matrices[text] ?: throw ParseException(object : ErrorResult() {}) })
+    }) or ((matrixToken and skip(equals) and skip(read)) use
+            {
+                //FIXME this still sometimes gets called twice, because the term gets parsed multiple times which shouldn't happen
+                // the workaround is currently to just use the value if its there
+                matrices[this.text] ?: run {
+                    val input = readDoubleMatrix().asNumberMatrix
+                    matrices[this.text] = input
+                    input
+                }
+            }) or (matrixToken use { matrices[text] ?: throw ParseException(object : ErrorResult() {}) })
 
     val scalar by ((scalarToken and skip(equals) and skip(read)) use {
         println("Input Scalar")
@@ -54,13 +55,17 @@ class ExpressionGrammar : Grammar<Any>() {
         if (input.toString().endsWith(".0")) input = input.toInt()
         scalars[this.text] = input
         input
-    }) or (scalarToken use { scalars[text] ?: throw ParseException(object : ErrorResult() {}) })
+    }) or (scalarToken use { scalars[text] ?: throw ParseException(object : ErrorResult() {}) }) or (
+            number use {
+                if (this.text.toDouble().toString().endsWith(".0")) this.text.toInt() else this.text.toDouble()
+            }
+            )
+
+    val matrixTerm by matrix
 
 
-    val matrixTerm: Parser<Any> by matrix or
+    val term: Parser<Any> by matrixTerm or scalar or
             (skip(lpar) and parser(::rootParser) and skip(rpar))
-
-    val term: Parser<Any> by matrixTerm or scalar
 
 
     val transposeChain by ((matrixTerm and zeroOrMore(transpose))) use {
@@ -68,34 +73,35 @@ class ExpressionGrammar : Grammar<Any>() {
             var transposed: Matrix = this.t1 as Matrix;
             repeat(this.t2.size) { transposed = transposed.transposed() }
             transposed
-        } else throw ParseException(object :
-            ErrorResult() {})
+        } else {
+            UnexpectedEof(expected = matrixToken)
+        }
     }
 
     //FIXME or is not commutative and breaks it either way
-    val mulChain: Parser<Any> by leftAssociative(transposeChain or term, times use { type }) { a, op, b ->
+    val mulChain: Parser<Any> by leftAssociative((transposeChain or term), times use { type }) { a, op, b ->
         return@leftAssociative if (a is Scalar && b is Scalar) {
             a * b
         } else if (a is Scalar && b !is Scalar) {
-            a * ((b as? Matrix) ?: throw ParseException(object : ErrorResult() {}))
+            a * ((b as? Matrix) ?: return@leftAssociative UnexpectedEof(matrixToken))
         } else if (a !is Scalar && b is Scalar) {
-            ((a as? Matrix) ?: throw ParseException(object : ErrorResult() {})) * b
+            ((a as? Matrix) ?: return@leftAssociative UnexpectedEof(matrixToken)) * b
         } else {
             if ((a as? Matrix) != null && (b as? Matrix) != null) {
-                (a * b) ?: throw ParseException(object : ErrorResult() {})
+                (a * b) ?: throw Exception("Matrices have the wrong dimensions: a: $a; b:$b")
             } else {
-                throw ParseException(object : ErrorResult() {})
+                UnexpectedEof(matrixToken)
             }
         }
     }
 
     val sumChain by leftAssociative(mulChain, plus) { a, op, b ->
         return@leftAssociative if (a as? Matrix != null && b as? Matrix != null) {
-            ((a + b) as? Matrix) ?: throw ParseException(object : ErrorResult() {})
+            ((a + b) as? Matrix) ?:  UnexpectedEof(matrixToken)
         } else if (a is Scalar && b is Scalar) {
             Array(1) { Array(1) { a + b } }
         } else {
-            throw ParseException(object : ErrorResult() {})
+            UnexpectedEof(matrixToken)
         }
     }
     override val rootParser: Parser<Any> by sumChain
@@ -110,7 +116,7 @@ fun main(args: Array<String>) {
         try {
             val input = readLine() ?: ""
             tokensForDebugging = grammar.tokenizer.tokenize(input)
-            val result = grammar.parseToEnd(input)
+            val result = grammar.parseToEnd(tokensForDebugging)
             if (result is Scalar) {
                 println(result)
             } else {
