@@ -1,5 +1,16 @@
+import kotlin.math.pow
+
 fun add(x: Number, y: Number): Number {
     return x + y
+}
+
+infix fun Number.pow(other: Number): Number {
+    val doubleResult = (this.toDouble()).pow(other.toDouble())
+    return if (doubleResult.toInt().toDouble() == doubleResult) {
+        doubleResult.toInt()
+    } else {
+        doubleResult
+    }
 }
 
 //I know that this looks ridiculous, but all of these operators call different functions like Int.plus(Int) or Long.plus(Long) because of smart casting
@@ -48,7 +59,9 @@ operator fun Number.div(other: Number): Number {
         this / other
     } else if (this is Double && other is Double) {
         this / other
-    } else {
+    } else if (this is Double && other is Int) {
+        this / other
+    }else {
         TODO("Not implemented for this Datatype yet")
     }
 }

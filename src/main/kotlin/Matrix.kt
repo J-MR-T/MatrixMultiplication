@@ -1,3 +1,4 @@
+import java.lang.Exception
 import java.lang.NumberFormatException
 
 private val Array<Array<Double>>.asNumberMatrix: Array<Array<out Number>>
@@ -81,6 +82,7 @@ class Matrix(private var matrix: Array<Array<out Number>>) {
             }
         }
 
+
         operator fun Number.times(matrix: Matrix): Matrix {
             return Matrix(this * matrix.matrix)
         }
@@ -118,6 +120,15 @@ class Matrix(private var matrix: Array<Array<out Number>>) {
 
     }
 
+
+    infix fun pow(int: Int): Matrix? {
+        var matrix: Matrix? = this
+        repeat(int - 1) {
+            matrix = this * matrix
+        }
+        return matrix
+    }
+
     private val Array<Array<Number>>.addOut: Array<Array<out Number>>
         get() {
             return this.map { arrayOfNumbers -> arrayOfNumbers.map { number -> number }.toTypedArray() }.toTypedArray()
@@ -135,7 +146,8 @@ class Matrix(private var matrix: Array<Array<out Number>>) {
         ) { arrayOfNumbers -> arrayOfNumbers.joinToString("&") }
     }
 
-    operator fun times(other: Matrix): Matrix? {
+    operator fun times(other: Matrix?): Matrix? {
+        if (other == null) return null
         return (this.matrix * other.matrix)?.let { Matrix(it.addOut) }
     }
 
@@ -213,6 +225,10 @@ class Matrix(private var matrix: Array<Array<out Number>>) {
 
     operator fun get(row: Int, column: Int): Number {
         return matrix[row][column]
+    }
+
+    operator fun get(row: Int): Array<out Number> {
+        return matrix[row]
     }
 
 }

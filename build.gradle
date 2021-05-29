@@ -20,8 +20,23 @@ compileTestKotlin {
     kotlinOptions.jvmTarget = '1.8'
 }
 
+jar {
+    manifest {
+        attributes "Main-Class": "ExpressionGrammarKt"
+    }
+    duplicatesStrategy(duplicatesStrategy.INHERIT)
+    from {
+        duplicatesStrategy(duplicatesStrategy.INHERIT)
+        configurations.runtimeClasspath.collect {
+            duplicatesStrategy(duplicatesStrategy.INHERIT)
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+}
+
 dependencies {
     implementation "com.github.h0tk3y.betterParse:better-parse:0.4.2"
+    implementation 'com.github.DaveJarvis:JMathTeX:46ce73375f'
 }
 
 application {
