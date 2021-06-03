@@ -1,5 +1,5 @@
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.4.32'
+    id 'org.jetbrains.kotlin.jvm' version '1.5.20-M1'
     id 'application'
 }
 
@@ -37,6 +37,11 @@ jar {
 dependencies {
     implementation "com.github.h0tk3y.betterParse:better-parse:0.4.2"
     implementation 'com.github.DaveJarvis:JMathTeX:46ce73375f'
+    implementation 'io.kotest:kotest-runner-junit5-jvm:4.6.0'
+}
+
+test {
+    useJUnitPlatform()
 }
 
 application {
