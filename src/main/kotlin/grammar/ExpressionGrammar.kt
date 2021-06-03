@@ -1,3 +1,6 @@
+package grammar
+
+import calculations.*
 import com.github.h0tk3y.betterParse.combinators.*
 import com.github.h0tk3y.betterParse.grammar.Grammar
 import com.github.h0tk3y.betterParse.grammar.parser
@@ -6,15 +9,7 @@ import com.github.h0tk3y.betterParse.lexer.TokenMatchesSequence
 import com.github.h0tk3y.betterParse.lexer.literalToken
 import com.github.h0tk3y.betterParse.lexer.regexToken
 import com.github.h0tk3y.betterParse.parser.*
-import com.whitemagicsoftware.tex.DefaultTeXFont
-import com.whitemagicsoftware.tex.TeXEnvironment
-import com.whitemagicsoftware.tex.TeXFormula
-import com.whitemagicsoftware.tex.TeXLayout
-import com.whitemagicsoftware.tex.graphics.SvgGraphics2D
 import java.awt.*
-import javax.swing.JFrame
-import javax.swing.JPanel
-import javax.swing.WindowConstants
 
 
 typealias Scalar = Number
@@ -38,7 +33,8 @@ class ExpressionGrammar : Grammar<Any>() {
     val rpar by literalToken(")")
     val identity by regexToken("Id((\\s)*(\\d)+)+")
     val transpose by regexToken("\\^[Tt]")
-    val power by regexToken("\\^((\\s)*(\\d)+)+(\\.((\\s)*(\\d)+)+)?")
+    //    val power by regexToken("\\^((\\s)*(\\d)+)+(\\.((\\s)*(\\d)+)+)?")
+    val powerSymbol by regexToken("\\^")
     val matrixToken by regexToken("[A-Z]+[A-Za-z]*")
     val scalarToken by regexToken("[a-z]+[A-Za-z]*")
     val whitespace by regexToken("(\\s|${System.lineSeparator()}|\t)+", ignore = true)
@@ -83,18 +79,11 @@ class ExpressionGrammar : Grammar<Any>() {
     }
     val scalarTerm by scalarAssignment or term or scalar
 
-    val powerChain by (scalarTerm and zeroOrMore(power)) use {
+    val powerChain by (scalarTerm and zeroOrMore(skip(powerSymbol) and scalar)) use {
         if (t2.isEmpty()) {
             t1
         } else {
-            val powerzzzzz = t2.map { tokenMatch -> tokenMatch.text.substring(1).replace(" ", "") }
-                .map { string ->
-                    if (string.toInt().toDouble() == string.toDouble()) {
-                        string.toInt()
-                    } else {
-                        string.toDouble()
-                    }
-                }
+            val powerzzzzz = t2
             when (t1) {
                 is Scalar -> {
                     var result = t1 as Scalar
@@ -156,7 +145,7 @@ class ExpressionGrammar : Grammar<Any>() {
             if (a is Matrix && b is Matrix) {
                 (a + b) ?: UnexpectedEof(matrixToken)
             } else if (a is Scalar && b is Scalar) {
-                Array(1) { Array(1) { a + b } }
+                a + b
             } else {
                 UnexpectedEof(matrixToken)
             }
@@ -164,7 +153,7 @@ class ExpressionGrammar : Grammar<Any>() {
             if (a is Matrix && b is Matrix) {
                 (a - b) ?: UnexpectedEof(matrixToken)
             } else if (a is Scalar && b is Scalar) {
-                Array(1) { Array(1) { a - b } }
+                a - b
             } else {
                 UnexpectedEof(matrixToken)
             }
