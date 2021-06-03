@@ -1,7 +1,18 @@
+package calculations
+
 import kotlin.math.pow
 
 fun add(x: Number, y: Number): Number {
     return x + y
+}
+
+fun addMod(x: Number, y: Number, mod: Number): Number {
+    return if (x.toInt() == x && y.toInt() == y) {
+        (x.toInt() + y.toInt()).mod(mod.toInt())
+    } else {
+        (x.toDouble() + y.toDouble()).mod(mod.toDouble())
+    }
+
 }
 
 infix fun Number.pow(other: Number): Number {
@@ -10,6 +21,27 @@ infix fun Number.pow(other: Number): Number {
         doubleResult.toInt()
     } else {
         doubleResult
+    }
+}
+
+
+infix fun Number.numMod(mod: Int): Number {
+    return when (this) {
+        is Int -> {
+            this.toInt().mod(mod)
+        }
+        is Float -> {
+            this.toFloat().mod(mod.toFloat())
+        }
+        is Long -> {
+            this.toLong().mod(mod.toLong())
+        }
+        is Double -> {
+            this.toDouble().mod(mod.toDouble())
+        }
+        else -> {
+            TODO("Not implemented for this Datatype yet")
+        }
     }
 }
 
@@ -61,7 +93,7 @@ operator fun Number.div(other: Number): Number {
         this / other
     } else if (this is Double && other is Int) {
         this / other
-    }else {
+    } else {
         TODO("Not implemented for this Datatype yet")
     }
 }

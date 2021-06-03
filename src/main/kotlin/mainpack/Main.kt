@@ -1,15 +1,67 @@
-import java.lang.NumberFormatException
+import calculations.Matrix
 import kotlin.system.exitProcess
-import Matrix.*
-import Matrix.Companion.addAll
-import Matrix.Companion.multiplyAll
-import Matrix.Companion.readMatrix
-import Matrix.Companion.times
+import calculations.Matrix.Companion.addAll
+import calculations.Matrix.Companion.multiplyAll
+import calculations.Matrix.Companion.readMatrix
+import calculations.Matrix.Companion.times
+import codes.LinearCode
 
 private val exitCommands: List<String> = listOf("quit", "stop", "exit", "vim")
 
 
 fun main() {
+    val bauer84 = LinearCode(
+        8,
+        4,
+        Matrix(arrayOf(arrayOf(0, 1, 1, 1), arrayOf(1, 0, 1, 1), arrayOf(1, 1, 0, 1), arrayOf(1, 1, 1, 0)))
+    )
+    println(bauer84.encode(arrayOf(0, 1, 1, 0)).contentToString())
+    println(bauer84.decode(arrayOf(0, 0, 0, 0, 0, 1, 1,0)).contentDeepToString())
+
+//    val error194 = codes.LinearCode(
+//        19,
+//        4,
+//        Matrix(
+//            arrayOf(
+//                arrayOf(0, 1, 1, 1),
+//                arrayOf(1, 0, 1, 1),
+//                arrayOf(1, 1, 0, 1),
+//                arrayOf(1, 1, 1, 0),
+//                arrayOf(0, 1, 1, 1),
+//                arrayOf(1, 1, 0, 0),
+//                arrayOf(0, 1, 1, 0),
+//                arrayOf(0, 0, 1, 1),
+//                arrayOf(1, 0, 0, 1),
+//                arrayOf(1, 0, 1, 0),
+//                arrayOf(0, 1, 0, 1),
+//                arrayOf(1, 0, 0, 0),
+//                arrayOf(0, 1, 0, 0),
+//                arrayOf(0, 0, 1, 0),
+//                arrayOf(0, 0, 0, 1),
+//            )
+//        )
+//    )
+//    println(error194.hammingDistance)
+//    println(error194.encode(arrayOf(1, 0, 1, 0)).contentToString())
+//    println(error194.decode(arrayOf(0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0)).contentToString())
+
+//    val hamming154 = codes.LinearCode(
+//        15, 11, Matrix(
+//            arrayOf(
+//                arrayOf(1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1),
+//                arrayOf(1, 0, 0, 1, 1, 0, 1, 0, 1, 1, 1),
+//                arrayOf(0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1),
+//                arrayOf(0, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1),
+//            )
+//        )
+//    )
+//    println(hamming154.hammingDistance)
+//    println(hamming154.encode(arrayOf(1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1)).contentToString())
+//    println(hamming154.decode(arrayOf(1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1)).contentToString())
+
+}
+
+private fun oldCalcLoop() {
     while (true) {
         println("Pick your poison (type 'quit','stop' or 'exit' without the '' at any time to stop the application):")
         CLIOptions.values().forEach(::println)

@@ -1,5 +1,6 @@
-import java.lang.Exception
-import java.lang.NumberFormatException
+package calculations
+
+import calculations.*
 
 private val Array<Array<Double>>.asNumberMatrix: Array<Array<out Number>>
     get() {
@@ -11,7 +12,11 @@ private val Array<Array<Double>>.asNumberMatrix: Array<Array<out Number>>
         }
     }
 
-class Matrix(private var matrix: Array<Array<out Number>>) {
+/**
+ * This is an array of ***rows*** (Arrays themselves), which then contain the actual numbers
+ */
+
+class Matrix(private var matrix: Array<Array<out Number>>) : Iterable<Array<Number>> {
     companion object {
         fun getIdentityMatrix(dimension: Int): Matrix {
             return Matrix(Array(dimension) { indexRow ->
@@ -66,6 +71,28 @@ class Matrix(private var matrix: Array<Array<out Number>>) {
             }
         }
 
+        private fun multiplyMod(
+            left: Array<Array<out Number>>,
+            right: Array<Array<out Number>>,
+            mod: Int = 2,
+        ): Array<Array<Number>>? {
+            if (mod == 0) return multiply(left, right)
+            //Otherwise matrix multiplication isn't possible
+            return if (left[0].size == right.size) {
+                val returnMatrix: Array<Array<Number>> = Array(left.size) { Array(right[0].size) { 0 } }
+                returnMatrix.forEachIndexed { indexRow, arrayOfNumbers ->
+                    arrayOfNumbers.forEachIndexed { indexColumn, _ ->
+                        returnMatrix[indexRow][indexColumn] =
+                            left[indexRow].mapIndexed { index, number -> number * right[index][indexColumn] }
+                                .reduce { x, y -> addMod(x, y, mod) }
+                    }
+                }
+                returnMatrix
+            } else {
+                null
+            }
+        }
+
         private fun add(left: Array<Array<out Number>>, right: Array<Array<out Number>>): Array<Array<Number>>? {
             //Otherwise matrix multiplication isn't possible
             return if (left.size == right.size && left[0].size == right[0].size) {
@@ -91,7 +118,6 @@ class Matrix(private var matrix: Array<Array<out Number>>) {
         private operator fun Number.times(matrix: Array<Array<out Number>>): Array<Array<out Number>> {
             return matrix.map { row -> row.map { it * this }.toTypedArray() }.toTypedArray()
         }
-
 
         fun List<Matrix>.multiplyAll(): Matrix {
             return Matrix(map { matrix -> matrix.matrix }.multiplyAll())
@@ -121,18 +147,23 @@ class Matrix(private var matrix: Array<Array<out Number>>) {
     }
 
 
-    infix fun pow(int: Int): Matrix? {
-        var matrix: Matrix? = this
-        repeat(int - 1) {
-            matrix = this * matrix
-        }
-        return matrix
-    }
+    private val toIntsIfApplicable: Matrix
+        get() = Matrix(this.matrix.toIntsIfApplicable)
 
     private val Array<Array<Number>>.addOut: Array<Array<out Number>>
         get() {
             return this.map { arrayOfNumbers -> arrayOfNumbers.map { number -> number }.toTypedArray() }.toTypedArray()
         }
+
+    val columnVectors: Matrix
+        get() {
+            if (!this::savedColumnVectors.isInitialized) {
+                savedColumnVectors = transposed()
+            }
+            return savedColumnVectors
+        }
+
+    private lateinit var savedColumnVectors: Matrix
 
     fun asLatex(whichKind: String = "pmatrix"): String {
         return matrix.asLatex(whichKind)
@@ -144,6 +175,15 @@ class Matrix(private var matrix: Array<Array<out Number>>) {
             prefix = "\\begin{$whichKind}",
             postfix = "\\end{$whichKind}",
         ) { arrayOfNumbers -> arrayOfNumbers.joinToString("&") }
+    }
+
+
+    infix fun pow(int: Int): Matrix? {
+        var matrix: Matrix? = this
+        repeat(int - 1) {
+            matrix = this * matrix
+        }
+        return matrix
     }
 
     operator fun times(other: Matrix?): Matrix? {
@@ -172,12 +212,7 @@ class Matrix(private var matrix: Array<Array<out Number>>) {
     }
 
     private fun Array<Array<out Number>>.printMatrix() {
-        val maxSpaces =
-            flatMap { it.asIterable() }.maxOf { number: Number -> number.toString().length }
-        forEach { ints ->
-            ints.forEach { print("$it" + " ".repeat(maxSpaces - it.toString().length + 1)) }
-            println("")
-        }
+        println(joinToString(System.lineSeparator()){array->array.joinToString(" ")})
     }
 
     fun transpose() {
@@ -229,6 +264,39 @@ class Matrix(private var matrix: Array<Array<out Number>>) {
 
     operator fun get(row: Int): Array<out Number> {
         return matrix[row]
+    }
+
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Matrix) return false
+
+        if (!matrix.contentDeepEquals(other.matrix)) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return matrix.contentDeepHashCode()
+    }
+
+    override fun iterator(): Iterator<Array<Number>> {
+        return matrix.map { a -> a.map { b -> b }.toTypedArray() }.toTypedArray().iterator()
+    }
+
+    override fun toString(): String {
+        val stringBuilder = StringBuilder(matrix.size * (matrix.getOrNull(0)?.size ?: return ""))
+        val maxSpaces =
+            flatMap { it.asIterable() }.maxOf { number: Number -> number.toString().length }
+        forEach { ints ->
+            ints.forEach { stringBuilder.append("$it" + " ".repeat(maxSpaces - it.toString().length + 1)) }
+            stringBuilder.appendLine()
+        }
+        return stringBuilder.toString()
+    }
+
+    fun mulMod(matrix: Matrix, mod: Int = 2): Matrix? {
+        return Matrix(multiplyMod(this.matrix, matrix.matrix, mod)?.addOut ?: return null)
     }
 
 }
