@@ -1,6 +1,17 @@
 package calculations
 
+import com.github.h0tk3y.betterParse.parser.UnexpectedEof
+import grammar.InvalidInput
 import kotlin.math.pow
+
+fun readScalar(): Number? {
+    var input: Number = readLine()?.toDoubleOrNull() ?: return null
+    if (input.toString().endsWith(".0")) {
+        input = input.toInt()
+    }
+    return input
+}
+
 
 fun add(x: Number, y: Number): Number {
     return x + y
@@ -43,6 +54,10 @@ infix fun Number.numMod(mod: Int): Number {
             TODO("Not implemented for this Datatype yet")
         }
     }
+}
+
+fun Number.toIntIfPossible(): Number {
+    return if (this.toInt().toDouble() == this.toDouble()) this.toInt() else this
 }
 
 //I know that this looks ridiculous, but all of these operators call different functions like Int.plus(Int) or Long.plus(Long) because of smart casting

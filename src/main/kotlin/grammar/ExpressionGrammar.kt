@@ -4,12 +4,10 @@ import calculations.*
 import com.github.h0tk3y.betterParse.combinators.*
 import com.github.h0tk3y.betterParse.grammar.Grammar
 import com.github.h0tk3y.betterParse.grammar.parser
-import com.github.h0tk3y.betterParse.lexer.TokenMatch
 import com.github.h0tk3y.betterParse.lexer.TokenMatchesSequence
 import com.github.h0tk3y.betterParse.lexer.literalToken
 import com.github.h0tk3y.betterParse.lexer.regexToken
 import com.github.h0tk3y.betterParse.parser.*
-import java.awt.*
 
 
 typealias Scalar = Number
@@ -23,21 +21,23 @@ val scalars: MutableMap<String, Scalar> = mutableMapOf("ten" to 10)
 
 class ExpressionGrammar : Grammar<Any>() {
     val number by regexToken("-?\\d+(\\.\\d+)?")
-    val plus by literalToken("+")
-    val minus by literalToken("-")
-    val times by literalToken("*")
-    val div by literalToken("/")
-    val equals by literalToken("=")
-    val read by literalToken("read()")
-    val lpar by literalToken("(")
-    val rpar by literalToken(")")
-    val identity by regexToken("Id((\\s)*(\\d)+)+")
-    val transpose by regexToken("\\^[Tt]")
-    //    val power by regexToken("\\^((\\s)*(\\d)+)+(\\.((\\s)*(\\d)+)+)?")
-    val powerSymbol by regexToken("\\^")
-    val matrixToken by regexToken("[A-Z]+[A-Za-z]*")
-    val scalarToken by regexToken("[a-z]+[A-Za-z]*")
-    val whitespace by regexToken("(\\s|${System.lineSeparator()}|\t)+", ignore = true)
+        val plus by literalToken("+")
+        val minus by literalToken("-")
+        val times by literalToken("*")
+        val div by literalToken("/")
+        val equals by literalToken("=")
+        val read by literalToken("read()")
+        val readScalar by literalToken("readScalar()")
+        val readMatrix by literalToken("readMatrix()")
+        val lpar by literalToken("(")
+        val rpar by literalToken(")")
+        val identity by regexToken("Id((\\s)*(\\d)+)+")
+        val transpose by regexToken("\\^[Tt]")
+        //        val power by regexToken("\\^((\\s)*(\\d)+)+(\\.((\\s)*(\\d)+)+)?")
+        val powerSymbol by regexToken("\\^")
+        val matrixToken by regexToken("[A-Z]+[A-Za-z]*")
+        val scalarToken by regexToken("[a-z]+[A-Za-z]*")
+        val whitespace by regexToken("(\\s|${System.lineSeparator()}|\t)+", ignore = true)
 
     val matrix by (identity use {
         val dimension = this.text.replace(" ", "").substring(2).toInt()
@@ -51,29 +51,33 @@ class ExpressionGrammar : Grammar<Any>() {
                     matrices[this.text] = input
                     input
                 }
-            }) or (matrixToken use { matrices[text] ?: throw ParseException(object : ErrorResult() {}) })
+            }) or (matrixToken use { matrices[text] ?: throw ParseException(object : ErrorResult() {}) }
+            ) or (readMatrix use {
+        Matrix.readMatrix()
+    })
 
     val scalar by ((scalarToken and skip(equals) and skip(read)) use {
         println("Input Scalar")
-        var input: Number = readLine()?.toDoubleOrNull() ?: throw ParseException(object : ErrorResult() {})
-        if (input.toString().endsWith(".0")) input = input.toInt()
+        val input: Number = readScalar() ?: throw ParseException(InvalidInput(input))
         scalars[this.text] = input
         input
-    }) or (scalarToken use { scalars[text] ?: throw ParseException(object : ErrorResult() {}) }) or (
+    }) or (scalarToken use { scalars[text] ?: throw ParseException(UnexpectedEof(scalarToken)) }) or (
             number use {
-                if (this.text.toDouble().toString().endsWith(".0")) this.text.toInt() else this.text.toDouble()
-            }
-            )
+                this.text.toDouble().toIntIfPossible()
+            }) or (readScalar use
+            {
+                readScalar() ?: throw ParseException(InvalidInput(input))
+            })
 
 
     val term: Parser<Any> by parser(::matrixAssignment) or matrix or
             (skip(lpar) and parser(::rootParser) and skip(rpar))
 
-    val matrixAssignment by (matrixToken and skip(equals)).and<TokenMatch, Any>(parser(::rootParser)) use {
+    val matrixAssignment by (matrixToken and skip(equals)).and(parser(::rootParser)) use {
         matrices[t1.text] = t2 as Matrix
         t2 as Matrix
     }
-    val scalarAssignment by (scalarToken and skip(equals)).and<TokenMatch, Any>(parser(::rootParser)) use {
+    val scalarAssignment by (scalarToken and skip(equals)).and(parser(::rootParser)) use {
         scalars[t1.text] = t2 as Scalar
         t2 as Scalar
     }
@@ -97,10 +101,10 @@ class ExpressionGrammar : Grammar<Any>() {
                     powerzzzzz.forEach {
                         result = result?.pow(it.toInt())
                     }
-                    result ?: throw  Exception("Matrix has the wrong dimensions (is not square: $t1")
+                    result ?: throw Exception("Matrix has the wrong dimensions (is not square: $t1")
                 }
                 else -> {
-                    UnexpectedEof(matrixToken)
+                    throw ParseException(UnexpectedEof(matrixToken))
                 }
             }
         }
@@ -136,7 +140,7 @@ class ExpressionGrammar : Grammar<Any>() {
         } else if (a is Matrix && b is Matrix) {
             (a * b) ?: throw Exception("Matrices have the wrong dimensions: a: $a; b:$b")
         } else {
-            UnexpectedEof(matrixToken)
+            throw ParseException(UnexpectedEof(matrixToken))
         }
     }
 
@@ -145,20 +149,20 @@ class ExpressionGrammar : Grammar<Any>() {
             if (a is Matrix && b is Matrix) {
                 (a + b) ?: UnexpectedEof(matrixToken)
             } else if (a is Scalar && b is Scalar) {
-                a + b
+                (a + b).toIntIfPossible()
             } else {
-                UnexpectedEof(matrixToken)
+                throw ParseException(UnexpectedEof(matrixToken))
             }
         } else if (op.type == minus) {
             if (a is Matrix && b is Matrix) {
                 (a - b) ?: UnexpectedEof(matrixToken)
             } else if (a is Scalar && b is Scalar) {
-                a - b
+                (a - b).toIntIfPossible()
             } else {
-                UnexpectedEof(matrixToken)
+                throw ParseException(UnexpectedEof(matrixToken))
             }
         } else {
-            UnexpectedEof(matrixToken)
+            throw ParseException(UnexpectedEof(matrixToken))
         }
     }
 
@@ -199,7 +203,7 @@ fun main() {
         try {
             val input = readLine() ?: ""
             if (input == "clear") {
-                repeat(50) { println() }
+                print(System.lineSeparator().repeat(50))
                 continue
             }
             tokensForDebugging = grammar.tokenizer.tokenize(input)

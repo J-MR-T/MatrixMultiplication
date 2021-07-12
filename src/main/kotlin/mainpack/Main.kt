@@ -15,8 +15,8 @@ fun main() {
         4,
         Matrix(arrayOf(arrayOf(0, 1, 1, 1), arrayOf(1, 0, 1, 1), arrayOf(1, 1, 0, 1), arrayOf(1, 1, 1, 0)))
     )
-    println(bauer84.encode(arrayOf(0, 1, 1, 0)).contentToString())
-    println(bauer84.decode(arrayOf(0, 0, 0, 0, 0, 1, 1,0)).contentDeepToString())
+//    println(bauer84.encode(arrayOf(0, 1, 1, 0)).contentToString())
+//    println(bauer84.decode(arrayOf(0, 0, 0, 0, 0, 1, 1,0)).contentDeepToString())
 
 //    val error194 = codes.LinearCode(
 //        19,

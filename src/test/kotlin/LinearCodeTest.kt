@@ -1,4 +1,5 @@
 import calculations.Matrix
+import calculations.numMod
 import codes.LinearCode
 import io.kotest.assertions.fail
 import io.kotest.assertions.withClue

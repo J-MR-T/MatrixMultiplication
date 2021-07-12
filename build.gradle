@@ -1,3 +1,16 @@
+//buildscript {
+//    repositories {
+//        flatDir {
+//            dirs 'libs'
+//        }
+//        mavenCentral()
+//    }
+//    dependencies {
+//        classpath 'io.kotest:kotest-runner-junit5-jvm:4.6.0'
+//        classpath "com.github.h0tk3y.betterParse:better-parse:0.4.2"
+//    }
+//}
+
 plugins {
     id 'org.jetbrains.kotlin.jvm' version '1.5.20-M1'
     id 'application'
@@ -21,14 +34,13 @@ compileTestKotlin {
 }
 
 jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    archiveFileName = "matrix.jar"
     manifest {
-        attributes "Main-Class": "ExpressionGrammarKt"
+        attributes 'Main-Class': 'grammar.ExpressionGrammarKt'
     }
-    duplicatesStrategy(duplicatesStrategy.INHERIT)
     from {
-        duplicatesStrategy(duplicatesStrategy.INHERIT)
         configurations.runtimeClasspath.collect {
-            duplicatesStrategy(duplicatesStrategy.INHERIT)
             it.isDirectory() ? it : zipTree(it)
         }
     }
