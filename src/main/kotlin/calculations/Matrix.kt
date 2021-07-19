@@ -239,35 +239,35 @@ class Matrix(private var matrix: Array<Array<out Number>>) : Iterable<Array<Numb
         }
     }
 
-    fun gauss(rightSideVector: Matrix = Matrix(Array(numRows) { Array(1) { 0 } })): Matrix {
-        //TODO
-        val returnMatrix = deepCopy()
-        for (i in 0 until numRows) {
-            val matricesWithNonZeroAtCurrentColumn = returnMatrix.matrix.filter { row -> row[i] != 0 }.map { a->a.map { b->b }.toTypedArray()}
-            var sourceRow = matricesWithNonZeroAtCurrentColumn.firstOrNull { row ->
-                row.take(i).all { num ->
-                    //num==0 check
-                    abs(num.toDouble()) < 2 * Double.MIN_VALUE
-                }
-            } ?: continue
-
-            //normalize source row
-
-            //should always be != 0
-            val firstRelevantOfSourceRow = sourceRow[i]
-            sourceRow = sourceRow.map { num -> num / firstRelevantOfSourceRow }.toTypedArray()
-
-            //multiply and add source row with others to make them 0
-            for (currentRow in matricesWithNonZeroAtCurrentColumn) {
-                val firstRelevantOfCurrentRow = currentRow[i]
-                currentRow.forEachIndexed { index, number ->
-                    //FIXME because of the <out Number> and mapping shenanigans this will probably not override the actual return array
-                    currentRow[index] = (-1 / firstRelevantOfCurrentRow) * sourceRow[index] + currentRow[index]
-                }
-
-            }
-        }
-    }
+//    fun gauss(rightSideVector: Matrix = Matrix(Array(numRows) { Array(1) { 0 } })): Matrix {
+//        //TODO
+//        val returnMatrix = deepCopy()
+//        for (i in 0 until numRows) {
+//            val matricesWithNonZeroAtCurrentColumn = returnMatrix.matrix.filter { row -> row[i] != 0 }.map { a->a.map { b->b }.toTypedArray()}
+//            var sourceRow = matricesWithNonZeroAtCurrentColumn.firstOrNull { row ->
+//                row.take(i).all { num ->
+//                    //num==0 check
+//                    abs(num.toDouble()) < 2 * Double.MIN_VALUE
+//                }
+//            } ?: continue
+//
+//            //normalize source row
+//
+//            //should always be != 0
+//            val firstRelevantOfSourceRow = sourceRow[i]
+//            sourceRow = sourceRow.map { num -> num / firstRelevantOfSourceRow }.toTypedArray()
+//
+//            //multiply and add source row with others to make them 0
+//            for (currentRow in matricesWithNonZeroAtCurrentColumn) {
+//                val firstRelevantOfCurrentRow = currentRow[i]
+//                currentRow.forEachIndexed { index, number ->
+//                    //FIXME because of the <out Number> and mapping shenanigans this will probably not override the actual return array
+//                    currentRow[index] = (-1 / firstRelevantOfCurrentRow) * sourceRow[index] + currentRow[index]
+//                }
+//
+//            }
+//        }
+//    }
 
     fun deepCopy(): Matrix {
         return Matrix(
